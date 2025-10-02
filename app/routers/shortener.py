@@ -27,7 +27,7 @@ async def create_short_url(payload: ShortenIn, db: Session = Depends(get_db)) ->
         short = f"{settings.base_url.rstrip('/')}/{row.code}"
         return ShortenOut(id=row.code, short_url=short) # type: ignore[arg-type]
     try:
-        row = Url(code="", original_url=original)
+        row = Url(original_url=original)
         db.add(row)
         db.flush()
         row.code = to_base62(row.id)
