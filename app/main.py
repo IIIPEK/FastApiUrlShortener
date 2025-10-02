@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+from app.core.logging_config import setup_logging
+setup_logging("DEBUG")
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -9,13 +11,13 @@ from app.core.config import settings
 from app.db.session import init_db
 from app.routers import meta, shortener, async_tasks
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
-
-logger = logging.getLogger("uvicorn.error")   # основной канал uvicorn
-logger.info("App starting…")
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+# )
+#
+# logger = logging.getLogger("uvicorn.error")   # основной канал uvicorn
+# logger.info("App starting…")
 
 
 

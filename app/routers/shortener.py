@@ -14,13 +14,14 @@ from app.models.url import Url
 from app.services.shortener import to_base62, canonicalize_url
 from app.core.config import settings
 
-logger = logging.getLogger("uvicorn.error")
+logger = logging.getLogger("app.router.shortener")
 router = APIRouter(tags=["shortener"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=ShortenOut)
 async def create_short_url(payload: ShortenIn, db: Session = Depends(get_db)) -> ShortenOut:
     original = canonicalize_url(str(payload.url))
-    logger.info("Canonicalized URL %s -> %s", payload.url, original)
+    logger.info("Incoming URL: %s | canonical: %s", payload.url, original)
+
     row = db.scalar(select(Url).where(Url.original_url == original))
     if row:
         short = f"{settings.base_url.rstrip('/')}/{row.code}"
