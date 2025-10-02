@@ -1,0 +1,47 @@
+# app/routers/shortener.py
+from __future__ import annotations
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from app.deps import get_db
+from app.models import Url
+from app.schemas.url import ShortenIn, ShortenOut
+from app.models.url import Url
+from app.services.shortener import to_base62, canonicalize_url
+from app.core.config import settings
+
+router = APIRouter(tags=["shortener"])
+
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ShortenOut)
+async def create_short_url(payload: ShortenIn, db: Session = Depends(get_db)) -> ShortenOut:
+    original = canonicalize_url(str(payload.url))
+    row = db.scalar(select(Url).where(Url.original_url == original))
+    if row:
+        short = f"{settings.base_url.rstrip('/')}/{row.code}"
+        return ShortenOut(id=row.code, short_url=short) # type: ignore[arg-type]
+    try:
+        row = Url(code="", original_url=original)
+        db.add(row)
+        db.flush()
+        row.code = to_base62(row.id)
+        db.commit()
+        db.refresh(row)
+    except IntegrityError:
+        db.rollback()
+        row = db.scalar(select(Url).where(Url.original_url == original))
+        if not row:
+            # highly unlikely, but possible if two requests race
+            raise HTTPException(status_code=500, detail="Race condition on URL insert")
+
+    short = f"{settings.base_url.rstrip('/')}/{row.code}"
+    return ShortenOut(id=row.code, short_url=short) # type: ignore[arg-type]
+
+@router.get("/{code}", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+async def resolve_and_redirect(code: str, db: Session = Depends(get_db)):
+    row = db.scalar(select(Url).where(Url.code == code))
+    if not row:
+        raise HTTPException(status_code=404, detail="Short URL not found")
+    return RedirectResponse(url=row.original_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
