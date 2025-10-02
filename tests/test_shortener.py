@@ -9,7 +9,7 @@ async def test_create_and_redirect(client):
     original = "https://example.com/long/path?q=1"
 
     # create short link
-    r = await client.post(f"{settings.shortener_prefix}/, json={"url": original})
+    r = await client.post(f"{settings.shortener_prefix}/", json={"url": original})
     assert r.status_code == 201
     payload = r.json()
     assert "id" in payload and payload["id"]

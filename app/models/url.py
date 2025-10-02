@@ -9,7 +9,7 @@ class Url(Base):
     __tablename__ = "urls"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    code: Mapped[str] = mapped_column(String(16), unique=True, index=True)
+    code: Mapped[str] = mapped_column(String(16), unique=True, index=True, nullable=True)
     original_url: Mapped[str] = mapped_column(String(2048))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 

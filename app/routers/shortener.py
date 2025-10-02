@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 from app.deps import get_db
 from app.models import Url
 from app.schemas.url import ShortenIn, ShortenOut
-from app.models.url import Url
 from app.services.shortener import to_base62, canonicalize_url
 from app.core.config import settings
 
