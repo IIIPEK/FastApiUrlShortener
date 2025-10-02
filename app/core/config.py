@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     port: int = 8080
     base_url: str = "http://127.0.0.1:8080"
     database_url: str = "sqlite:///./data.db"
+    shortener_prefix: str = "/u"
+    fetch_prefix: str = "/api/fetch"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
 
