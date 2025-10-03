@@ -12,7 +12,7 @@ async def test_fetch_mocks_external_http(client):
     test_url = "https://example.com"
     respx.get(test_url).mock(return_value=httpx.Response(200, text="hello"))
 
-    r = await client.get(f"{settings.shortener_prefix}/", params={"url": test_url})
+    r = await client.get(f"{settings.fetch_prefix}/fetch/", params={"url": test_url})
     assert r.status_code == 200
     data = r.json()
     assert data["status_code"] == 200

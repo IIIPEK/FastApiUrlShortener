@@ -30,8 +30,8 @@ app = FastAPI(title="URL Shortener", version="1.0.0", lifespan=lifespan )
 
 # Routers
 app.include_router(meta.router)
-app.include_router(shortener.router,prefix=settings.shortener_prefix)
 app.include_router(async_tasks.router, prefix=settings.fetch_prefix)
+app.include_router(shortener.router,prefix=settings.shortener_prefix)
 
 # Dev entrypoint (optional)
 if __name__ == "__main__":
