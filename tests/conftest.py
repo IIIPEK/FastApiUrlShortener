@@ -9,7 +9,7 @@ os.environ.setdefault("DATABASE_URL", f"sqlite:///{_db_path.as_posix()}")
 os.environ.setdefault("BASE_URL", "http://testserver")
 os.environ.setdefault("HOST", "127.0.0.1")
 os.environ.setdefault("PORT", "8080")
-print("TEST DB PATH:", _db_path.as_posix())
+
 @atexit.register
 def _cleanup():
     # аккуратно снимаем локи с SQLite и чистим каталог

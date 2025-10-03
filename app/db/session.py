@@ -12,7 +12,7 @@ db_url = settings.database_url
 
 engine = create_engine(db_url, echo=False, future=True)
 #logger.info("DB URL in use: %s", engine.url.render_as_string(hide_password=False))
-print("TEST DB DSN:", engine.url.render_as_string(hide_password=False))
+
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
 
 def init_db() -> None:
