@@ -1,33 +1,29 @@
 # tests/conftest.py
 from __future__ import annotations
-import os
-import pathlib
-import tempfile
+
+import os, tempfile, pathlib, atexit
+_tmpdir = tempfile.TemporaryDirectory()
+_db_path = pathlib.Path(_tmpdir.name) / "test.db"
+
+os.environ.setdefault("DATABASE_URL", f"sqlite:///{_db_path.as_posix()}")
+os.environ.setdefault("BASE_URL", "http://testserver")
+os.environ.setdefault("HOST", "127.0.0.1")
+os.environ.setdefault("PORT", "8080")
+print("TEST DB PATH:", _db_path.as_posix())
+@atexit.register
+def _cleanup():
+    # аккуратно снимаем локи с SQLite и чистим каталог
+    try:
+        from app.db.session import engine
+        engine.dispose()
+    except Exception:
+        pass
+    _tmpdir.cleanup()
+
 import pytest
 import httpx
 from httpx import ASGITransport
 
-# 1) Ставим env ДО импорта приложения (DB в отдельный временный файл)
-@pytest.fixture(scope="session", autouse=True)
-def _env_setup():
-    tmpdir = tempfile.TemporaryDirectory()
-    db_path = pathlib.Path(tmpdir.name) / "test.db"
-    os.environ.setdefault("DATABASE_URL", f"sqlite:///{db_path.as_posix()}")
-    os.environ.setdefault("BASE_URL", "http://testserver")
-    os.environ.setdefault("HOST", "127.0.0.1")
-    os.environ.setdefault("PORT", "8080")
-
-    yield  # тесты выполняются
-
-    # 4) Гарантированно закрываем соединения и удаляем tmpdir
-    try:
-        from app.db.session import engine
-        engine.dispose()  # снимаем file-lock с SQLite на Windows
-    except Exception:
-        pass
-    tmpdir.cleanup()
-
-# 2) Импортируем приложение (после установки env)
 @pytest.fixture(scope="session")
 def app_instance():
     from app.main import app

@@ -23,7 +23,7 @@ router = APIRouter(tags=["shortener"])
 async def create_short_url(payload: ShortenIn, db: Session = Depends(get_db)) -> ShortenOut:
     original = canonicalize_url(str(payload.url))
     logger.info("Incoming URL: %s | canonical: %s", payload.url, original)
-    logger.info("Database URL: %s", pathlib.Path(db.get_bind().url.database).resolve())
+    #logger.info("Database URL: %s", pathlib.Path(db.get_bind().url.database).resolve())
 
     row = db.scalar(select(Url).where(Url.original_url == original))
     if row:
