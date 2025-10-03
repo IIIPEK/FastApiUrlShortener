@@ -6,6 +6,10 @@ pydantic>=2.11
 pydantic-settings>=2.11
 python-dotenv>=1.1
 
+# if you use postgresql
+# psycopg[binary]>=3
+
 # tests
 pytest>=8.4
+pytest-asyncio>=0.23
 respx>=0.21
